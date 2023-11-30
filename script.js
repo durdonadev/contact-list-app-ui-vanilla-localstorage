@@ -53,7 +53,7 @@ class Storage {
 
 const storage = new Storage();
 
-class ContactsListApp {
+class ContactListApp {
     static tableBody = document.querySelector(".contacts");
 
     deleteContact = (id) => {
@@ -80,10 +80,6 @@ class ContactsListApp {
     }) => {
         const tr = document.createElement("tr");
 
-        const idTd = document.createElement("td");
-        idTd.innerText = id;
-        tr.appendChild(idTd);
-
         const firstNameTd = document.createElement("td");
         firstNameTd.innerText = firstName;
         tr.appendChild(firstNameTd);
@@ -104,20 +100,42 @@ class ContactsListApp {
         phoneNumberTd.innerText = phoneNumber;
         tr.appendChild(phoneNumberTd);
 
-        const deleteIcon = document.createElement("span");
-        deleteIcon.innerHTML = "&times;";
-        deleteIcon.style.cursor = "pointer";
+        const buttonsTd = document.createElement("td");
 
-        deleteIcon.addEventListener("click", (e) => {
+        const editButton = document.createElement("button");
+        editButton.innerText = "Edit";
+        editButton.style.cursor = "pointer";
+        editButton.style.backgroundColor = "#40a944";
+        editButton.style.color = "#fff";
+        editButton.style.border = "none";
+        editButton.style.borderRadius = "4px";
+        editButton.style.padding = "8px 12px";
+        editButton.style.width = "60px";
+        editButton.style.marginRight = "10px";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.innerText = "Delete";
+        deleteButton.style.cursor = "pointer";
+        deleteButton.style.backgroundColor = "#ff5555";
+        deleteButton.style.color = "#fff";
+        deleteButton.style.border = "none";
+        deleteButton.style.borderRadius = "4px";
+        deleteButton.style.padding = "8px 12px";
+        deleteButton.style.width = "60px";
+
+        deleteButton.addEventListener("click", (e) => {
             this.deleteContact(id);
         });
 
-        tr.appendChild(deleteIcon);
-        ContactsListApp.tableBody.appendChild(tr);
+        buttonsTd.appendChild(editButton);
+        buttonsTd.appendChild(deleteButton);
+        tr.appendChild(buttonsTd);
+
+        ContactListApp.tableBody.appendChild(tr);
     };
 
     createContacts = () => {
-        ContactsListApp.tableBody.innerHTML = "";
+        ContactListApp.tableBody.innerHTML = "";
         const contacts = this.getAll();
         for (const contact of contacts) {
             this.createContact(contact);
@@ -129,7 +147,7 @@ class ContactsListApp {
 
         form.addEventListener("submit", (event) => {
             event.preventDefault();
-            const id = crypto.randomUUID();
+
             const firstName = document.querySelector("#firstNameInput").value;
             const lastName = document.querySelector("#lastNameInput").value;
             const email = document.querySelector("#emailInput").value;
@@ -140,7 +158,6 @@ class ContactsListApp {
                 document.querySelector("#phoneNumberInput").value;
 
             const contact = {
-                id: id,
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
@@ -160,5 +177,5 @@ class ContactsListApp {
     };
 }
 
-const app = new ContactsListApp();
+const app = new ContactListApp();
 app.init();
