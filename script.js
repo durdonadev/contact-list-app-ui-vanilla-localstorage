@@ -11,23 +11,17 @@ class Storage {
         this.setContacts(existingContacts);
     }
 
-    delete(index) {
+    delete(id) {
         const existingContacts = this.get();
-        console.log(index);
-        existingContacts.splice(index, 1);
-        this.setContacts(existingContacts);
+        const keptContacts = existingContacts.filter(
+            (contact) => contact.id !== id
+        );
+        this.setContacts(keptContacts);
     }
 
-    openUpdatePopup(index) {
+    openUpdatePopup(id) {
         const existingContacts = this.get();
-        // const index = existingContacts.findIndex(
-        //     (c) => c.email === document.getElementById("email").value
-        // );
-        const contact = existingContacts[index];
-
-        console.log(index);
-        console.log(existingContacts);
-        console.log(contact);
+        const contact = existingContacts.find((contact) => contact.id === id);
 
         document.getElementById("updateFirstName").value = contact.firstName;
         document.getElementById("updateLastName").value = contact.lastName;
@@ -76,14 +70,12 @@ const storage = new Storage();
 class ContactListApp {
     static tableBody = document.querySelector(".contacts");
 
-    deleteContact = (index) => {
-        storage.delete(index);
-        this.loadContacts();
+    deleteContact = (id) => {
+        storage.delete(id);
     };
 
     addContact = (contact) => {
         storage.add(contact);
-        this.loadContacts();
     };
 
     getAll() {
@@ -91,6 +83,7 @@ class ContactListApp {
     }
 
     createContact = ({
+        id,
         firstName,
         lastName,
         email,
@@ -98,6 +91,9 @@ class ContactListApp {
         phoneNumber
     }) => {
         const tr = document.createElement("tr");
+
+        const idTd = document.createElement("td");
+        idTd.innerText = id;
 
         const firstNameTd = document.createElement("td");
         firstNameTd.innerText = firstName;
@@ -133,7 +129,8 @@ class ContactListApp {
         editButton.style.marginRight = "10px";
 
         editButton.addEventListener("click", () => {
-            storage.openUpdatePopup();
+            storage.openUpdatePopup(id);
+            this.loadContacts();
         });
 
         const deleteButton = document.createElement("button");
@@ -147,7 +144,8 @@ class ContactListApp {
         deleteButton.style.width = "60px";
 
         deleteButton.addEventListener("click", (e) => {
-            this.deleteContact();
+            this.deleteContact(id);
+            this.loadContacts();
         });
 
         const saveButton = document.getElementById("saveButton");
@@ -169,18 +167,19 @@ class ContactListApp {
 
     loadContacts = () => {
         ContactListApp.tableBody.innerHTML = "";
-        const contacts = this.getAll();
+        const contacts = storage.get();
         for (const contact of contacts) {
             this.createContact(contact);
         }
     };
 
     initForm = () => {
-        const form = document.querySelector("form");
+        const form = document.querySelector("#contactForm");
 
         form.addEventListener("submit", (event) => {
             event.preventDefault();
 
+            const id = crypto.randomUUID();
             const firstName = document.querySelector("#firstName").value;
             const lastName = document.querySelector("#lastName").value;
             const email = document.querySelector("#email").value;
@@ -189,6 +188,7 @@ class ContactListApp {
             const phoneNumber = document.querySelector("#phoneNumber").value;
 
             const contact = {
+                id: id,
                 firstName: firstName,
                 lastName: lastName,
                 email: email,
@@ -197,8 +197,8 @@ class ContactListApp {
             };
 
             this.addContact(contact);
-
             form.reset();
+            this.loadContacts();
         });
     };
 
